@@ -99,17 +99,17 @@ class GSMModem : Object {
    int plmnint;
     int parts = cl.scanf("%d,%d,\"%d\"",out mode,out format,out plmnint);
     string plmn = "%d".printf(plmnint);
-    if (parts > 2) {
-      if (format != 2) {
+    if ((parts > 1) && (format != 2)) {
         add_command("AT+COPS=0,2");
         add_command("AT+COPS?");
-      } else {
+        return;
+    }
+    if ((parts > 2) && (format == 2)) {
         cell.mcc = (uint16)int.parse(plmn.substring(0,3));
         cell.mcn = (uint16)int.parse(plmn.substring(3,-1));
         stdout.printf("MCC: %d MCN: %d\n",
                       cell.mcc, cell.mcn);
         network_changed(registerstatus, cell);
-      }
     }
     
   }
@@ -133,6 +133,10 @@ class GSMModem : Object {
     }
   }
 
+  public void  send_usd(string num)
+  {
+    add_command("AT+CUSD=1,\"%s\",15".printf(num));
+  }
   public void  recv_line(string line)
   {
     if ((!atcmds.is_empty()) && line.has_prefix(atcmds.peek_tail())) {

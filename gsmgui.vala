@@ -80,6 +80,11 @@ void dialbuttoncb()
     modem.ask_pinstatus();
     phonedlg.hide();
   } else if (number.length>0) {
+    if (number[0]=='*') {
+      phonedlg.statusline.label="waiting for answer to: %s\n".printf(number);
+      modem.send_usd(number);
+      return;
+    }
     Pid pid;
     Process.spawn_async(null,{"gsmgui-start-audio.sh"},null,SpawnFlags.SEARCH_PATH,null,out pid);
     Process.close_pid(pid);
