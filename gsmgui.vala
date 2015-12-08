@@ -46,13 +46,17 @@ class PhoneDlg : Gtk.Dialog {
 GSMModem modem;
 PhoneDlg phonedlg;
 bool saved_pin_status = false;
+bool first_pincheck = true;
 void pin_status(bool ok) {
   saved_pin_status = ok;
   if (!ok) {
   phonedlg.show_all();
   phonedlg.statusline.label = "Enter PIN";
   } else {
-  phonedlg.statusline.label = "PIN ok";
+    if (first_pincheck)
+      phonedlg.show_all();
+    first_pincheck = false;
+    phonedlg.statusline.label = "PIN ok";
     stdout.printf("ok\n");
   }
 }
