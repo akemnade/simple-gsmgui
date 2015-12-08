@@ -110,17 +110,41 @@ bool hidedlg(Gdk.Event event)
   return true;
 }
 
+void nw_changed(int registerstatus, GSMCell cell)
+{
+  string status = "unknown";
+  switch (registerstatus) {
+    case 0:
+    phonedlg.title="Phone: not registered";
+    Posix.unlink("/tmp/gsm/cell"); 
+    return;
+    case 1:
+    status = "home";
+    break;
+    case 5:
+    status = "roaming";
+    break;
+  }
+  phonedlg.title="Phone: %s %x/%x".printf(status,cell.lac,cell.cell);
+  FileStream fs = FileStream.open("/tmp/gsm/cell","w");
+  if (fs != null)
+  fs.printf("%u %u %x %x",cell.mcc,cell.mcn,cell.lac,cell.cell);
+
+}
+
 int main(string [] args) {
   Gtk.init(ref args);
   phonedlg = new PhoneDlg();
   phonedlg.delete_event.connect(hidedlg);
   modem = new GSMModem("/dev/ttyHS_Application");  
   modem.pin_status.connect(pin_status);   
-  modem.incoming_call.connect(incoming_call);   
+  modem.incoming_call.connect(incoming_call);
+  modem.network_changed.connect(nw_changed);
   phonedlg.dialbutton.clicked.connect(dialbuttoncb);
   phonedlg.hangupbutton.clicked.connect(hangupbuttoncb);
   modem.ask_pinstatus();
   Posix.signal(Posix.SIGUSR1,mysigusr1);
+  Posix.mkdir("/tmp/gsm",0755);
   Gtk.main();
   return 0;
 }
