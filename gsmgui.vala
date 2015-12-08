@@ -20,13 +20,13 @@ class PhoneDlg : Gtk.Dialog {
     hangupbutton = new Gtk.Button.with_label("Hangup");
     action_area.pack_start(dialbutton, true,true,0);
     action_area.pack_end(hangupbutton, true,true,0);
-    statusline = new Gtk.Label("enter PIN");
+    statusline = new Gtk.Label("status");
     vbox.pack_start(statusline, false,false,0);
     var hbox = new Gtk.HBox(false,0);
     vbox.pack_start(hbox,false,false,0);
     phoneline = new Gtk.Entry();
     hbox.pack_start(phoneline, true,true,0);
-    backbutton = new Gtk.Button.with_label("<-");
+    backbutton = new Gtk.Button.with_label("<<---");
     hbox.pack_end(backbutton,false,false,0);
     backbutton.clicked.connect(dellast); 
     numberfield = new Gtk.Table(4,3,true);
@@ -43,10 +43,71 @@ class PhoneDlg : Gtk.Dialog {
   }
 }
 
+GSMModem modem;
+PhoneDlg phonedlg;
+bool saved_pin_status = false;
+void pin_status(bool ok) {
+  saved_pin_status = ok;
+  if (!ok) {
+  phonedlg.show_all();
+  phonedlg.statusline.label = "Enter PIN";
+  } else {
+  phonedlg.statusline.label = "PIN ok";
+    stdout.printf("ok\n");
+  }
+}
+
+void incoming_call(string number)
+{
+  stdout.printf("call from: %s",number);
+  phonedlg.statusline.label="call from: %s".printf(number);
+  phonedlg.show_all();
+}
+
+void dialbuttoncb()
+{
+  string number = phonedlg.phoneline.text;
+  phonedlg.phoneline.text = "";
+  if (!saved_pin_status) {
+    modem.verify_pin(number);
+    modem.ask_pinstatus();
+    phonedlg.hide();
+  } else if (number.length>0) {
+    modem.dial(number);
+    phonedlg.statusline.label="call to: %s".printf(number);
+  } else {
+    modem.answer();
+  }
+}
+
+void hangupbuttoncb()
+{
+  modem.send_hangup();
+}
+
+void mysigusr1()
+{
+  phonedlg.show_all();
+}
+
+bool hidedlg(Gdk.Event event)
+{
+  phonedlg.hide();
+  phonedlg.phoneline.text = "";
+  return true;
+}
+
 int main(string [] args) {
   Gtk.init(ref args);
-  var phonedlg = new PhoneDlg();
-  phonedlg.show_all();  
+  phonedlg = new PhoneDlg();
+  phonedlg.delete_event.connect(hidedlg);
+  modem = new GSMModem("/dev/ttyHS_Application");  
+  modem.pin_status.connect(pin_status);   
+  modem.incoming_call.connect(incoming_call);   
+  phonedlg.dialbutton.clicked.connect(dialbuttoncb);
+  phonedlg.hangupbutton.clicked.connect(hangupbuttoncb);
+  modem.ask_pinstatus();
+  Posix.signal(Posix.SIGUSR1,mysigusr1);
   Gtk.main();
   return 0;
 }

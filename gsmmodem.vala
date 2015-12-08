@@ -5,7 +5,7 @@ class GSMModem : Object {
   string modemname;
   char inbuf[80];
   char inbufpos;
-  const string unsoc_init[3]={"AT+CLIP=1","AT+CREG=2","AT+CSQ"};
+  const string unsoc_init[3]={"AT+CLIP=1","AT+CREG=2","AT+CSQ","AT+CTZU=1"};
   public signal void pin_status(bool ok);
   public signal void queue_completed(string result);
   public signal void incoming_call(string number);
@@ -109,6 +109,9 @@ class GSMModem : Object {
     add_command("AT+CPIN=\"%s\"".printf(pin));
     //add_command("AT+COPS".printf(pin));
     add_commands(unsoc_init);
+  }
+  public void send_hangup() {
+    add_command("AT+CHUP");
   }
   public void ask_pinstatus() {
     add_command("AT+CPIN?");
