@@ -1,14 +1,24 @@
+struct GSMCell {
+  uint16 mcc;
+  uint16 mcn;
+  uint16 lac;
+  uint32 cell; 
+}
+
 class GSMModem : Object {
   int fd;
   FileStream fs;
   Queue<string> atcmds;
   string modemname;
+  GSMCell cell;
+  int registerstatus;
   char inbuf[80];
   char inbufpos;
-  const string unsoc_init[3]={"AT+CLIP=1","AT+CREG=2","AT+CSQ","AT+CTZU=1"};
+  const string unsoc_init[5]={"AT+CLIP=1","AT+CREG=2","AT+CSQ","AT+CTZU=1","AT+CREG?"};
   public signal void pin_status(bool ok);
   public signal void queue_completed(string result);
   public signal void incoming_call(string number);
+  public signal void network_changed(int registerstatus, GSMCell cell);
   void command_result(string line) {
     stdout.printf("result: %s\n",line);
     if (atcmds.is_empty())
@@ -70,6 +80,39 @@ class GSMModem : Object {
     var parts = cl.split(",");
     incoming_call(parts[0]);  
   }
+  
+  public void handle_creg(string cl)
+  {
+    int mode;
+    uint32 lac32;
+    int parts = cl.scanf("%d,%d,\"%x\",\"%x\"",out mode,out registerstatus,out lac32,out cell.cell);
+    cell.lac = (uint16)lac32;
+    stdout.printf("status: %d lac: %x cell: %x\n",registerstatus,cell.lac,cell.cell);
+    add_command("AT+COPS?");
+  }
+  
+  public void handle_cops(string cl)
+  {
+    //allocate enough memory for sscanf
+    int mode;
+    int format;
+   int plmnint;
+    int parts = cl.scanf("%d,%d,\"%d\"",out mode,out format,out plmnint);
+    string plmn = "%d".printf(plmnint);
+    if (parts > 2) {
+      if (format != 2) {
+        add_command("AT+COPS=0,2");
+        add_command("AT+COPS?");
+      } else {
+        cell.mcc = (uint16)int.parse(plmn.substring(0,3));
+        cell.mcn = (uint16)int.parse(plmn.substring(3,-1));
+        stdout.printf("MCC: %d MCN: %d\n",
+                      cell.mcc, cell.mcn);
+        network_changed(registerstatus, cell);
+      }
+    }
+    
+  }
 
   public void handle_recvinfo(string line)
   {
@@ -83,6 +126,10 @@ class GSMModem : Object {
       }
     } else if (parts[0] == "+CLIP") {
        handle_clip(parts[1]);
+    } else if (parts[0] == "+CREG") {
+       handle_creg(parts[1]);
+    } else if (parts[0] == "+COPS") {
+       handle_cops(parts[1]);
     }
   }
 
@@ -135,6 +182,7 @@ class GSMModem : Object {
   public GSMModem(string name) {
     modemname = name;
     atcmds = new Queue<string>();
+    cell = new GSMCell();
    open_modem();
   }
 }
