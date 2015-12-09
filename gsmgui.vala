@@ -120,6 +120,7 @@ void nw_changed(int registerstatus, GSMCell cell)
   string status = "unknown";
   switch (registerstatus) {
     case 0:
+    case 2:
     phonedlg.title="Phone: not registered";
     Posix.unlink("/tmp/gsm/cell"); 
     return;
