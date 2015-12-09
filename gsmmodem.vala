@@ -85,7 +85,9 @@ class GSMModem : Object {
   {
     int mode;
     uint32 lac32;
-    int parts = cl.scanf("%d,%d,\"%x\",\"%x\"",out mode,out registerstatus,out lac32,out cell.cell);
+    int parts = cl.scanf("%d,%d,\"%x\",\"%x\"",out mode, out registerstatus,out lac32,out cell.cell);
+    if (parts != 4) 
+     parts = cl.scanf("%d,\"%x\",\"%x\"",out registerstatus,out lac32,out cell.cell);
     cell.lac = (uint16)lac32;
     stdout.printf("status: %d lac: %x cell: %x\n",registerstatus,cell.lac,cell.cell);
     add_command("AT+COPS?");
