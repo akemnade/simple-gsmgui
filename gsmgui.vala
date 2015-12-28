@@ -47,6 +47,7 @@ GSMModem modem;
 PhoneDlg phonedlg;
 bool saved_pin_status = false;
 bool first_pincheck = true;
+string cellfilename = null;
 void pin_status(bool ok) {
   saved_pin_status = ok;
   if (!ok) {
@@ -122,7 +123,8 @@ void nw_changed(int registerstatus, GSMCell cell)
     case 0:
     case 2:
     phonedlg.title="Phone: not registered";
-    Posix.unlink("/tmp/gsm/cell"); 
+    if (cellfilename != null)
+	Posix.unlink(cellfilename); 
     return;
     case 1:
     status = "home";
@@ -132,14 +134,24 @@ void nw_changed(int registerstatus, GSMCell cell)
     break;
   }
   phonedlg.title="Phone: %s %x/%x".printf(status,cell.lac,cell.cell);
-  FileStream fs = FileStream.open("/tmp/gsm/cell","w");
-  if (fs != null)
-  fs.printf("%u %u %x %x",cell.mcc,cell.mcn,cell.lac,cell.cell);
+  if (cellfilename != null) {
+    FileStream fs = FileStream.open(cellfilename,"w");
+    if (fs != null)
+      fs.printf("%u %u %x %x",cell.mcc,cell.mcn,cell.lac,cell.cell);
+  }
 
 }
 
 int main(string [] args) {
   Gtk.init(ref args);
+  string celltmp = Environment.get_tmp_dir()+"/gsminfo.XXXXXX";
+  string celltmpres = DirUtils.mkdtemp(celltmp);
+  if (celltmpres != null) {
+    string gsminfo = Environment.get_home_dir() + "/gsminfo"; 
+    Posix.unlink(gsminfo);
+    Posix.symlink(celltmp, gsminfo);
+    cellfilename = celltmpres + "/cell";
+  }
   phonedlg = new PhoneDlg();
   phonedlg.delete_event.connect(hidedlg);
   modem = new GSMModem("/dev/ttyHS_Application");  
@@ -150,7 +162,6 @@ int main(string [] args) {
   phonedlg.hangupbutton.clicked.connect(hangupbuttoncb);
   modem.ask_pinstatus();
   Posix.signal(Posix.SIGUSR1,mysigusr1);
-  Posix.mkdir("/tmp/gsm",0755);
   Gtk.main();
   return 0;
 }
