@@ -7,7 +7,7 @@ struct GSMCell {
 
 class GSMModem : Object {
   int fd;
-  FileStream fs;
+  //FileStream fs;
   Queue<string> atcmds;
   string modemname;
   GSMCell cell;
@@ -59,6 +59,9 @@ class GSMModem : Object {
     ssize_t l = Posix.read(fd,inbuf+inbufpos,inbuf.length-inbufpos-1);
     int i,linecount;
     if (l<=0) {
+      Posix.close(fd);
+      fd = -1;
+      Timeout.add(2000, modem_check_timer); 
       return false;
     }
     l+=inbufpos;
@@ -90,7 +93,11 @@ class GSMModem : Object {
      parts = cl.scanf("%d,\"%x\",\"%x\"",out registerstatus,out lac32,out cell.cell);
     cell.lac = (uint16)lac32;
     stdout.printf("status: %d lac: %x cell: %x\n",registerstatus,cell.lac,cell.cell);
-    add_command("AT+COPS?");
+    if ((registerstatus == 0) || (registerstatus == 2)) {
+      network_changed(registerstatus,cell);
+    } else {
+       add_command("AT+COPS?");
+    }
   }
   
   public void handle_cops(string cl)
@@ -181,15 +188,26 @@ class GSMModem : Object {
     fd = Posix.open(modemname,Posix.O_RDWR);
     if (fd < 0)
       return;
-    fs = FileStream.fdopen(fd,"r+");
     var gioc = new IOChannel.unix_new(fd);
     gioc.add_watch(GLib.IOCondition.IN,read_cb);
+    handle_queue();
+  }
+  public bool modem_check_timer() {
+    if (fd > 0) {
+      ask_pinstatus();
+      return false;
+    }
+    open_modem();
+    return true;
   }
   public GSMModem(string name) {
     modemname = name;
     atcmds = new Queue<string>();
     cell = new GSMCell();
-   open_modem();
+    open_modem();
+    if (fd < 0) {
+      Timeout.add(2000, modem_check_timer); 
+    }
   }
 }
 
