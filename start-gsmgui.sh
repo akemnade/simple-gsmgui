@@ -1,7 +1,7 @@
 #!/bin/bash
-if pgrep -x gsmgui ; then
-  killall -USR1 gsmgui
+if pgrep -x simple-gsmgui ; then
+  killall -USR1 simple-gsmgui
 else
-  gsmgui
+  simple-gsmgui
 fi
 
