@@ -23,7 +23,8 @@ class PhoneDlg : Gtk.Dialog {
     if (phoneline.text.length > 0)
       phoneline.text = phoneline.text.substring(0,phoneline.text.length-1);
   }
-  void numbfunc(Gtk.Button b) { int pos = phoneline.cursor_position;
+  void numbfunc(Gtk.Button b) {
+	  //int pos = phoneline.cursor_position;
          string addstr= b.get_label();
          phoneline.text+=addstr;
   } 
