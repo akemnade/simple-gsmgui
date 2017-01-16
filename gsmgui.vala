@@ -19,7 +19,7 @@ class PhoneDlg : Gtk.Dialog {
   public Gtk.Button hangupbutton;
   public Gtk.Button backbutton;
   void dellast() {
-    int p = phoneline.cursor_position;
+    // int p = phoneline.cursor_position;
     if (phoneline.text.length > 0)
       phoneline.text = phoneline.text.substring(0,phoneline.text.length-1);
   }
