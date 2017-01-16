@@ -216,7 +216,7 @@ class GSMModem : Object {
   public GSMModem(string name) {
     modemname = name;
     atcmds = new Queue<string>();
-    cell = new GSMCell();
+    cell = GSMCell();
     open_modem();
     if (fd < 0) {
       Timeout.add(2000, modem_check_timer); 
