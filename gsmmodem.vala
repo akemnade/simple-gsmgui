@@ -27,7 +27,7 @@ class GSMModem : Object {
   int registerstatus;
   char inbuf[80];
   char inbufpos;
-  const string unsoc_init[5]={"AT+CLIP=1","AT+CREG=2","AT+CSQ","AT+CTZU=1","AT+CREG?"};
+  string [] unsoc_init = {"AT+CLIP=1","AT+CREG=2","AT+CSQ","AT+CTZU=1","AT+CREG?"};
   public signal void pin_status(bool ok);
   public signal void queue_completed(string result);
   public signal void incoming_call(string number);
@@ -190,11 +190,11 @@ class GSMModem : Object {
     add_command("AT+CPIN?");
   }
   public void dial(string number) {
-    string cmd[4]={"AT_ODO=0","AT_OPCMENABLE=1","AT_OPCMPROF=0","ATD%s;".printf(number)};
+    string [] cmd ={"AT_ODO=0","AT_OPCMENABLE=1","AT_OPCMPROF=0","ATD%s;".printf(number)};
     add_commands(cmd);
   } 
   public void answer() {
-    string cmd[4]={"AT_ODO=0","AT_OPCMENABLE=1","AT_OPCMPROF=0","ATA"};
+    string [] cmd ={"AT_ODO=0","AT_OPCMENABLE=1","AT_OPCMPROF=0","ATA"};
     add_commands(cmd); 
   }
   public void open_modem() {
