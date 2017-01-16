@@ -78,9 +78,12 @@ void pin_status(bool ok) {
 void incoming_call(string number)
 {
   stdout.printf("call from: %s",number);
-  Pid pid;
-  Process.spawn_async(null,{"gsmgui-ring.sh"},null,SpawnFlags.SEARCH_PATH,null,out pid);
-  Process.close_pid(pid);
+  try {
+	  Pid pid;
+	  Process.spawn_async(null,{"gsmgui-ring.sh"},null,SpawnFlags.SEARCH_PATH,null,out pid);
+	  Process.close_pid(pid);
+  } catch (SpawnError err) {
+  }
   phonedlg.statusline.label="call from: %s".printf(number);
   phonedlg.show_all();
 }
@@ -99,16 +102,23 @@ void dialbuttoncb()
       modem.send_usd(number);
       return;
     }
-    Pid pid;
-    Process.spawn_async(null,{"gsmgui-start-audio.sh"},null,SpawnFlags.SEARCH_PATH,null,out pid);
-    Process.close_pid(pid);
+	try {
+		Pid pid;
+		Process.spawn_async(null,{"gsmgui-start-audio.sh"},null,SpawnFlags.SEARCH_PATH,null,out pid);
+		Process.close_pid(pid);
+	} catch(SpawnError err) {
+	}
     modem.dial(number);
     phonedlg.statusline.label="call to: %s".printf(number);
   } else {
-    Pid pid;
-    Process.spawn_async(null,{"gsmgui-start-audio.sh"},null,SpawnFlags.SEARCH_PATH,null,out pid);
-    Process.close_pid(pid);
-    modem.answer();
+	  try {
+		  
+		  Pid pid;
+		  Process.spawn_async(null,{"gsmgui-start-audio.sh"},null,SpawnFlags.SEARCH_PATH,null,out pid);
+		  Process.close_pid(pid);
+	  } catch(SpawnError err) {
+	  }
+	  modem.answer();
   }
 }
 
