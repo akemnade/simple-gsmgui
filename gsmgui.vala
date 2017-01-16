@@ -29,22 +29,24 @@ class PhoneDlg : Gtk.Dialog {
          phoneline.text+=addstr;
   } 
   public PhoneDlg() {
+    Gtk.Box vb = (Gtk.Box)get_content_area(); 
+    Gtk.Box hb = (Gtk.Box)get_action_area();
     set_title("Phone");
     dialbutton = new Gtk.Button.with_label("Dial"); 
     hangupbutton = new Gtk.Button.with_label("Hangup");
-    action_area.pack_start(dialbutton, true,true,0);
-    action_area.pack_end(hangupbutton, true,true,0);
+    hb.pack_start(dialbutton, true,true,0);
+    hb.pack_end(hangupbutton, true,true,0);
     statusline = new Gtk.Label("status");
-    vbox.pack_start(statusline, false,false,0);
+    vb.pack_start(statusline, false,false,0);
     var hbox = new Gtk.HBox(false,0);
-    vbox.pack_start(hbox,false,false,0);
+    vb.pack_start(hbox,false,false,0);
     phoneline = new Gtk.Entry();
     hbox.pack_start(phoneline, true,true,0);
     backbutton = new Gtk.Button.with_label("<<---");
     hbox.pack_end(backbutton,false,false,0);
     backbutton.clicked.connect(dellast); 
     numberfield = new Gtk.Table(4,3,true);
-    vbox.pack_start(numberfield,true,true,0);
+    vb.pack_start(numberfield,true,true,0);
     string nums[12]={"1","2","3","4","5","6","7","8","9","*","0","#"};
     int i;
     for(i=0;i<nums.length;i++) {
