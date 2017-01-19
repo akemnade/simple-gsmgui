@@ -127,6 +127,9 @@ void dialbuttoncb()
 
 void hangupbuttoncb()
 {
+  if (saved_pin_status)
+      phonedlg.statusline.label="";
+
   modem.send_hangup();
 }
 
