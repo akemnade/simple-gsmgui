@@ -161,21 +161,35 @@ class GSMModem : Object {
   }
   public void  recv_line(string line)
   {
-    if ((!atcmds.is_empty()) && line.has_prefix(atcmds.peek_tail())) {
+    /* handle stuff which is not a direct response
+     * to a command
+     */
+    if (line[0] == '+') {
+      stdout.printf("unsolic: %s\n",line);
+      handle_recvinfo(line);
+    }
+    if (atcmds.is_empty())
+      return;
+    string cmd = atcmds.peek_head();
+    bool is_verify = cmd.has_prefix("AT+CPIN=");
+    /* is it just an echo? */
+    if (line.has_prefix(cmd)) {
       stdout.printf("echo: %s\n",line);
     } else if (line.has_prefix("+CME")) {
       command_result(line);
       atcmds.clear();
+      if (is_verify)
+        ask_pinstatus();
+    /* command successful, handle next queue entries */
     } else if (line.has_prefix("OK")) {
       command_result(line);
       handle_queue();
     } else if (line.has_prefix("ERROR")) {
       command_result(line);
       atcmds.clear();
-    } else if (line[0] == '+') {
-      stdout.printf("unsolic: %s\n",line);
-      handle_recvinfo(line);
-    }
+      if (is_verify)
+        ask_pinstatus();
+    } 
     //return true;
   }
   public void verify_pin(string pin) {
