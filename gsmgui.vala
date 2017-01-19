@@ -145,6 +145,11 @@ bool hidedlg(Gdk.Event event)
   return true;
 }
 
+void display_usd_msg(string answer)
+{
+  phonedlg.statusline.label = "Answer: \n" + answer;
+}
+
 void nw_changed(int registerstatus, GSMCell cell)
 {
   string status = "unknown";
@@ -187,6 +192,7 @@ int main(string [] args) {
   modem.pin_status.connect(pin_status);   
   modem.incoming_call.connect(incoming_call);
   modem.network_changed.connect(nw_changed);
+  modem.got_usd_msg.connect(display_usd_msg);
   phonedlg.dialbutton.clicked.connect(dialbuttoncb);
   phonedlg.hangupbutton.clicked.connect(hangupbuttoncb);
   modem.ask_pinstatus();

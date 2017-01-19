@@ -32,6 +32,8 @@ class GSMModem : Object {
   public signal void queue_completed(string result);
   public signal void incoming_call(string number);
   public signal void network_changed(int registerstatus, GSMCell cell);
+  public signal void got_usd_msg(string answer);
+
   void command_result(string line) {
     stdout.printf("result: %s\n",line);
     if (atcmds.is_empty())
@@ -135,6 +137,11 @@ class GSMModem : Object {
     }
     
   }
+  
+  public void handle_cusd(string line)
+  {
+    got_usd_msg(line);
+  }
 
   public void handle_recvinfo(string line)
   {
@@ -152,6 +159,8 @@ class GSMModem : Object {
        handle_creg(parts[1]);
     } else if (parts[0] == "+COPS") {
        handle_cops(parts[1]);
+    } else if (parts[0] == "+CUSD") {
+       handle_cusd(parts[1]);
     }
   }
 
