@@ -181,6 +181,8 @@ class GSMModem : Object {
       return;
     string cmd = atcmds.peek_head();
     bool is_verify = cmd.has_prefix("AT+CPIN=");
+    /* some buggy firmware answers error here but it is ok */
+    bool is_pcm = cmd.has_prefix("AT_OPCMENABLE");
     /* is it just an echo? */
     if (line.has_prefix(cmd)) {
       stdout.printf("echo: %s\n",line);
@@ -190,7 +192,7 @@ class GSMModem : Object {
       if (is_verify)
         ask_pinstatus();
     /* command successful, handle next queue entries */
-    } else if (line.has_prefix("OK")) {
+    } else if (line.has_prefix("OK") || is_pcm) {
       command_result(line);
       handle_queue();
     } else if (line.has_prefix("ERROR")) {
@@ -213,11 +215,13 @@ class GSMModem : Object {
     add_command("AT+CPIN?");
   }
   public void dial(string number) {
-    string [] cmd ={"AT_ODO=0","AT_OPCMENABLE=1","AT_OPCMPROF=0","ATD%s;".printf(number)};
+    string [] cmd ={"AT_ODO=0","AT_OPCMENABLE=1",/*AT_OPCMCONFIG=...*/
+                    "AT+CLVL=7", "AT_OPCMPROF=0","ATD%s;".printf(number)};
     add_commands(cmd);
   } 
   public void answer() {
-    string [] cmd ={"AT_ODO=0","AT_OPCMENABLE=1","AT_OPCMPROF=0","ATA"};
+    string [] cmd ={"AT_ODO=0","AT_OPCMENABLE=1",/*AT_OPCMCONFIG=...*/
+		    "AT_CLVL=7","AT_OPCMPROF=0","ATA"};
     add_commands(cmd); 
   }
   public void open_modem() {
