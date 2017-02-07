@@ -221,7 +221,7 @@ class GSMModem : Object {
   } 
   public void answer() {
     string [] cmd ={"AT_ODO=0","AT_OPCMENABLE=1",/*AT_OPCMCONFIG=...*/
-		    "AT_CLVL=7","AT_OPCMPROF=0","ATA"};
+		    "AT+CLVL=7","AT_OPCMPROF=0","ATA"};
     add_commands(cmd); 
   }
   public void open_modem() {
