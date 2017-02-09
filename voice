@@ -357,8 +357,8 @@ state.gta04 {
 	}
 	control.26 {
 		iface MIXER
-		name 'Right1 Analog Loopback Switch'
-		value false
+		name 'Voice Route out Switch'
+		value true
 		comment {
 			access 'read write'
 			type BOOLEAN
@@ -367,7 +367,7 @@ state.gta04 {
 	}
 	control.27 {
 		iface MIXER
-		name 'Left1 Analog Loopback Switch'
+		name 'Right1 Analog Loopback Switch'
 		value false
 		comment {
 			access 'read write'
@@ -377,7 +377,7 @@ state.gta04 {
 	}
 	control.28 {
 		iface MIXER
-		name 'Right2 Analog Loopback Switch'
+		name 'Left1 Analog Loopback Switch'
 		value false
 		comment {
 			access 'read write'
@@ -387,7 +387,7 @@ state.gta04 {
 	}
 	control.29 {
 		iface MIXER
-		name 'Left2 Analog Loopback Switch'
+		name 'Right2 Analog Loopback Switch'
 		value false
 		comment {
 			access 'read write'
@@ -397,7 +397,7 @@ state.gta04 {
 	}
 	control.30 {
 		iface MIXER
-		name 'Voice Analog Loopback Switch'
+		name 'Left2 Analog Loopback Switch'
 		value false
 		comment {
 			access 'read write'
@@ -407,22 +407,18 @@ state.gta04 {
 	}
 	control.31 {
 		iface MIXER
-		name 'Left Digital Loopback Volume'
-		value 4
+		name 'Voice Analog Loopback Switch'
+		value false
 		comment {
 			access 'read write'
-			type INTEGER
+			type BOOLEAN
 			count 1
-			range '0 - 7'
-			dbmin -9999999
-			dbmax 0
-			dbvalue.0 -1800
 		}
 	}
 	control.32 {
 		iface MIXER
-		name 'Right Digital Loopback Volume'
-		value 4
+		name 'Left Digital Loopback Volume'
+		value 0
 		comment {
 			access 'read write'
 			type INTEGER
@@ -430,10 +426,24 @@ state.gta04 {
 			range '0 - 7'
 			dbmin -9999999
 			dbmax 0
-			dbvalue.0 -1800
+			dbvalue.0 -9999999
 		}
 	}
 	control.33 {
+		iface MIXER
+		name 'Right Digital Loopback Volume'
+		value 0
+		comment {
+			access 'read write'
+			type INTEGER
+			count 1
+			range '0 - 7'
+			dbmin -9999999
+			dbmax 0
+			dbvalue.0 -9999999
+		}
+	}
+	control.34 {
 		iface MIXER
 		name 'Voice Digital Loopback Volume'
 		value 0
@@ -447,7 +457,7 @@ state.gta04 {
 			dbvalue.0 -9999999
 		}
 	}
-	control.34 {
+	control.35 {
 		iface MIXER
 		name 'Earpiece Mixer Voice'
 		value true
@@ -457,7 +467,7 @@ state.gta04 {
 			count 1
 		}
 	}
-	control.35 {
+	control.36 {
 		iface MIXER
 		name 'Earpiece Mixer AudioL1'
 		value false
@@ -467,7 +477,7 @@ state.gta04 {
 			count 1
 		}
 	}
-	control.36 {
+	control.37 {
 		iface MIXER
 		name 'Earpiece Mixer AudioL2'
 		value false
@@ -477,7 +487,7 @@ state.gta04 {
 			count 1
 		}
 	}
-	control.37 {
+	control.38 {
 		iface MIXER
 		name 'Earpiece Mixer AudioR1'
 		value false
@@ -487,7 +497,7 @@ state.gta04 {
 			count 1
 		}
 	}
-	control.38 {
+	control.39 {
 		iface MIXER
 		name 'PredriveL Mixer Voice'
 		value false
@@ -497,7 +507,7 @@ state.gta04 {
 			count 1
 		}
 	}
-	control.39 {
+	control.40 {
 		iface MIXER
 		name 'PredriveL Mixer AudioL1'
 		value false
@@ -507,7 +517,7 @@ state.gta04 {
 			count 1
 		}
 	}
-	control.40 {
+	control.41 {
 		iface MIXER
 		name 'PredriveL Mixer AudioL2'
 		value false
@@ -517,7 +527,7 @@ state.gta04 {
 			count 1
 		}
 	}
-	control.41 {
+	control.42 {
 		iface MIXER
 		name 'PredriveL Mixer AudioR2'
 		value false
@@ -527,7 +537,7 @@ state.gta04 {
 			count 1
 		}
 	}
-	control.42 {
+	control.43 {
 		iface MIXER
 		name 'PredriveR Mixer Voice'
 		value false
@@ -537,7 +547,7 @@ state.gta04 {
 			count 1
 		}
 	}
-	control.43 {
+	control.44 {
 		iface MIXER
 		name 'PredriveR Mixer AudioR1'
 		value false
@@ -547,7 +557,7 @@ state.gta04 {
 			count 1
 		}
 	}
-	control.44 {
+	control.45 {
 		iface MIXER
 		name 'PredriveR Mixer AudioR2'
 		value false
@@ -557,7 +567,7 @@ state.gta04 {
 			count 1
 		}
 	}
-	control.45 {
+	control.46 {
 		iface MIXER
 		name 'PredriveR Mixer AudioL2'
 		value false
@@ -567,7 +577,7 @@ state.gta04 {
 			count 1
 		}
 	}
-	control.46 {
+	control.47 {
 		iface MIXER
 		name 'HeadsetL Mixer Voice'
 		value false
@@ -577,7 +587,7 @@ state.gta04 {
 			count 1
 		}
 	}
-	control.47 {
+	control.48 {
 		iface MIXER
 		name 'HeadsetL Mixer AudioL1'
 		value false
@@ -587,7 +597,7 @@ state.gta04 {
 			count 1
 		}
 	}
-	control.48 {
+	control.49 {
 		iface MIXER
 		name 'HeadsetL Mixer AudioL2'
 		value false
@@ -597,7 +607,7 @@ state.gta04 {
 			count 1
 		}
 	}
-	control.49 {
+	control.50 {
 		iface MIXER
 		name 'HeadsetR Mixer Voice'
 		value false
@@ -607,7 +617,7 @@ state.gta04 {
 			count 1
 		}
 	}
-	control.50 {
+	control.51 {
 		iface MIXER
 		name 'HeadsetR Mixer AudioR1'
 		value false
@@ -617,19 +627,9 @@ state.gta04 {
 			count 1
 		}
 	}
-	control.51 {
-		iface MIXER
-		name 'HeadsetR Mixer AudioR2'
-		value true
-		comment {
-			access 'read write'
-			type BOOLEAN
-			count 1
-		}
-	}
 	control.52 {
 		iface MIXER
-		name 'CarkitL Mixer Voice'
+		name 'HeadsetR Mixer AudioR2'
 		value false
 		comment {
 			access 'read write'
@@ -639,7 +639,7 @@ state.gta04 {
 	}
 	control.53 {
 		iface MIXER
-		name 'CarkitL Mixer AudioL1'
+		name 'CarkitL Mixer Voice'
 		value false
 		comment {
 			access 'read write'
@@ -649,7 +649,7 @@ state.gta04 {
 	}
 	control.54 {
 		iface MIXER
-		name 'CarkitL Mixer AudioL2'
+		name 'CarkitL Mixer AudioL1'
 		value false
 		comment {
 			access 'read write'
@@ -659,7 +659,7 @@ state.gta04 {
 	}
 	control.55 {
 		iface MIXER
-		name 'CarkitR Mixer Voice'
+		name 'CarkitL Mixer AudioL2'
 		value false
 		comment {
 			access 'read write'
@@ -669,7 +669,7 @@ state.gta04 {
 	}
 	control.56 {
 		iface MIXER
-		name 'CarkitR Mixer AudioR1'
+		name 'CarkitR Mixer Voice'
 		value false
 		comment {
 			access 'read write'
@@ -679,7 +679,7 @@ state.gta04 {
 	}
 	control.57 {
 		iface MIXER
-		name 'CarkitR Mixer AudioR2'
+		name 'CarkitR Mixer AudioR1'
 		value false
 		comment {
 			access 'read write'
@@ -688,6 +688,16 @@ state.gta04 {
 		}
 	}
 	control.58 {
+		iface MIXER
+		name 'CarkitR Mixer AudioR2'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.59 {
 		iface MIXER
 		name 'HandsfreeL Mux'
 		value AudioL2
@@ -701,7 +711,7 @@ state.gta04 {
 			item.3 AudioR2
 		}
 	}
-	control.59 {
+	control.60 {
 		iface MIXER
 		name 'HandsfreeL Switch'
 		value false
@@ -711,7 +721,7 @@ state.gta04 {
 			count 1
 		}
 	}
-	control.60 {
+	control.61 {
 		iface MIXER
 		name 'HandsfreeR Mux'
 		value AudioR2
@@ -725,7 +735,7 @@ state.gta04 {
 			item.3 AudioL2
 		}
 	}
-	control.61 {
+	control.62 {
 		iface MIXER
 		name 'HandsfreeR Switch'
 		value false
@@ -735,7 +745,7 @@ state.gta04 {
 			count 1
 		}
 	}
-	control.62 {
+	control.63 {
 		iface MIXER
 		name 'Vibra Mux'
 		value AudioR2
@@ -749,7 +759,7 @@ state.gta04 {
 			item.3 AudioR2
 		}
 	}
-	control.63 {
+	control.64 {
 		iface MIXER
 		name 'Vibra Route'
 		value 'Local vibrator'
@@ -761,7 +771,7 @@ state.gta04 {
 			item.1 Audio
 		}
 	}
-	control.64 {
+	control.65 {
 		iface MIXER
 		name 'TX1 Capture Route'
 		value Analog
@@ -773,7 +783,7 @@ state.gta04 {
 			item.1 Digimic0
 		}
 	}
-	control.65 {
+	control.66 {
 		iface MIXER
 		name 'TX2 Capture Route'
 		value Analog
@@ -785,7 +795,7 @@ state.gta04 {
 			item.1 Digimic1
 		}
 	}
-	control.66 {
+	control.67 {
 		iface MIXER
 		name 'Analog Left Main Mic Capture Switch'
 		value true
@@ -795,7 +805,7 @@ state.gta04 {
 			count 1
 		}
 	}
-	control.67 {
+	control.68 {
 		iface MIXER
 		name 'Analog Left Headset Mic Capture Switch'
 		value false
@@ -805,7 +815,7 @@ state.gta04 {
 			count 1
 		}
 	}
-	control.68 {
+	control.69 {
 		iface MIXER
 		name 'Analog Left AUXL Capture Switch'
 		value false
@@ -815,7 +825,7 @@ state.gta04 {
 			count 1
 		}
 	}
-	control.69 {
+	control.70 {
 		iface MIXER
 		name 'Analog Left Carkit Mic Capture Switch'
 		value false
@@ -825,7 +835,7 @@ state.gta04 {
 			count 1
 		}
 	}
-	control.70 {
+	control.71 {
 		iface MIXER
 		name 'Analog Right Sub Mic Capture Switch'
 		value false
@@ -835,7 +845,7 @@ state.gta04 {
 			count 1
 		}
 	}
-	control.71 {
+	control.72 {
 		iface MIXER
 		name 'Analog Right AUXR Capture Switch'
 		value false

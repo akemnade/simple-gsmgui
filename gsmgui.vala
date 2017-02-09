@@ -131,6 +131,13 @@ void hangupbuttoncb()
       phonedlg.statusline.label="";
 
   modem.send_hangup();
+  try {
+	  
+	  Pid pid;
+	  Process.spawn_async(null,{"gsmgui-hungup.sh"},null,SpawnFlags.SEARCH_PATH,null,out pid);
+	  Process.close_pid(pid);
+  } catch(SpawnError err) {
+  }
 }
 
 void mysigusr1()
