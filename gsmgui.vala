@@ -18,6 +18,13 @@ class PhoneDlg : Gtk.Dialog {
   public Gtk.Button dialbutton;
   public Gtk.Button hangupbutton;
   public Gtk.Button backbutton;
+  string okempty;
+  string oknonempty;
+  public void update_dialbutton(string empty, string nonempty) {
+    okempty = empty;
+    oknonempty = nonempty;
+    linechanged();
+  }
   void dellast() {
     // int p = phoneline.cursor_position;
     if (phoneline.text.length > 0)
@@ -28,11 +35,20 @@ class PhoneDlg : Gtk.Dialog {
          string addstr= b.get_label();
          phoneline.text+=addstr;
   } 
+  void linechanged() {
+    if (phoneline.text.length != 0) {
+      dialbutton.set_label(oknonempty);
+    } else {
+      dialbutton.set_label(okempty);
+    }
+  }
   public PhoneDlg() {
     Gtk.Box vb = (Gtk.Box)get_content_area(); 
     Gtk.Box hb = (Gtk.Box)get_action_area();
     set_title("Phone: modem off");
-    dialbutton = new Gtk.Button.with_label("Dial"); 
+    okempty = "Answer";
+    oknonempty = "Dial";
+    dialbutton = new Gtk.Button.with_label("Answer"); 
     hangupbutton = new Gtk.Button.with_label("Hangup");
     hb.pack_start(dialbutton, true,true,0);
     hb.pack_end(hangupbutton, true,true,0);
@@ -41,6 +57,7 @@ class PhoneDlg : Gtk.Dialog {
     var hbox = new Gtk.HBox(false,0);
     vb.pack_start(hbox,false,false,0);
     phoneline = new Gtk.Entry();
+    phoneline.changed.connect(linechanged);
     hbox.pack_start(phoneline, true,true,0);
     backbutton = new Gtk.Button.with_label("<<---");
     hbox.pack_end(backbutton,false,false,0);
@@ -67,9 +84,12 @@ string cellfilename = null;
 void pin_status(bool ok) {
   saved_pin_status = ok;
   if (!ok) {
-  phonedlg.show_all();
-  phonedlg.statusline.label = "Enter PIN";
+    phonedlg.show_all();
+    phonedlg.update_dialbutton("OK","OK");
+    phonedlg.statusline.label = "Enter PIN";
+    phonedlg.phoneline.text = "";
   } else {
+    phonedlg.update_dialbutton("Answer","Dial");
     if (first_pincheck)
       phonedlg.show_all();
     first_pincheck = false;
@@ -94,6 +114,7 @@ void incoming_call(string number)
 void dialbuttoncb()
 {
   string number = phonedlg.phoneline.text;
+  phonedlg.update_dialbutton("Answer", "Dial");
   phonedlg.phoneline.text = "";
   if (!saved_pin_status) {
     modem.verify_pin(number);
