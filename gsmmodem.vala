@@ -25,14 +25,16 @@ class GSMModem : Object {
   string modemname;
   GSMCell cell;
   int registerstatus;
-  char inbuf[80];
+  int num_quot;
+  char inbuf[512];
   char inbufpos;
+  string oldline;
   string [] unsoc_init = {"AT+CLIP=1","AT+CREG=2","AT+CSQ","AT+CTZU=1","AT+CREG?"};
   public signal void pin_status(bool ok);
   public signal void queue_completed(string result);
   public signal void incoming_call(string number);
   public signal void network_changed(int registerstatus, GSMCell cell);
-  public signal void got_usd_msg(string answer);
+  public signal void got_usd_msg(bool cont, string answer);
 
   void command_result(string line) {
     stdout.printf("result: %s\n",line);
@@ -141,7 +143,13 @@ class GSMModem : Object {
   
   public void handle_cusd(string line)
   {
-    got_usd_msg(line);
+    bool cont = line.data[0] != '0';
+    
+    int start = line.index_of("\"");
+    int end = line.last_index_of("\"");
+    if ((start != end) && (start != -1) && (end != -1)) 
+      got_usd_msg(cont, line.slice(start + 1,end));
+    
   }
 
   public void handle_recvinfo(string line)
@@ -162,7 +170,8 @@ class GSMModem : Object {
     } else if (parts[0] == "+COPS") {
        handle_cops(parts[1]);
     } else if (parts[0] == "+CUSD") {
-       handle_cusd(parts[1]);
+       string s = line.substring(7);
+       handle_cusd(s);
     }
   }
 
@@ -170,11 +179,25 @@ class GSMModem : Object {
   {
     add_command("AT+CUSD=1,\"%s\",15".printf(num));
   }
-  public void  recv_line(string line)
+  public void  recv_line(string l)
   {
-    /* handle stuff which is not a direct response
-     * to a command
+    int i;
+    /* handle answers over multiple lines (like ussd stuff)
      */
+    string line;
+    for(i=0;i<l.length;i++) {
+      if (l.data[i] == '"')
+        num_quot++;
+    }
+    if (oldline != "")
+      line = oldline +"\n"+ l;
+    else
+      line = l;
+    if ((num_quot & 1) != 0) {
+      oldline = line;
+      return;
+    }
+    oldline = "";
     if (line[0] == '+') {
       stdout.printf("unsolic: %s\n",line);
       handle_recvinfo(line);
@@ -230,6 +253,8 @@ class GSMModem : Object {
     fd = Posix.open(modemname,Posix.O_RDWR);
     if (fd < 0)
       return;
+    oldline = "";
+    num_quot = 0;
     var gioc = new IOChannel.unix_new(fd);
     gioc.add_watch(GLib.IOCondition.IN,read_cb);
     handle_queue();

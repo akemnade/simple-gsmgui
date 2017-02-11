@@ -20,6 +20,7 @@ class PhoneDlg : Gtk.Dialog {
   public Gtk.Button backbutton;
   string okempty;
   string oknonempty;
+  public bool in_usd;
   public void update_dialbutton(string empty, string nonempty) {
     okempty = empty;
     oknonempty = nonempty;
@@ -48,6 +49,7 @@ class PhoneDlg : Gtk.Dialog {
     set_title("Phone: modem off");
     okempty = "Answer";
     oknonempty = "Dial";
+    in_usd = false;
     dialbutton = new Gtk.Button.with_label("Answer"); 
     hangupbutton = new Gtk.Button.with_label("Hangup");
     hb.pack_start(dialbutton, true,true,0);
@@ -87,6 +89,7 @@ bool first_pincheck = true;
 string cellfilename = null;
 void pin_status(bool ok) {
   saved_pin_status = ok;
+  cancel_usd();
   if (!ok) {
     phonedlg.show_all();
     phonedlg.update_dialbutton("OK","OK");
@@ -125,7 +128,7 @@ void dialbuttoncb()
     modem.ask_pinstatus();
     phonedlg.hide();
   } else if (number.length>0) {
-    if (number[0]=='*') {
+    if ((number[0]=='*') || (phonedlg.in_usd && (number.length == 1))) {
       phonedlg.statusline.label="waiting for answer to: %s\n".printf(number);
       modem.send_usd(number);
       return;
@@ -155,6 +158,7 @@ void hangupbuttoncb()
   if (saved_pin_status)
       phonedlg.statusline.label="";
 
+  cancel_usd();
   modem.send_hangup();
   try {
 	  
@@ -177,14 +181,21 @@ bool hidedlg(Gdk.Event event)
   return true;
 }
 
-void display_usd_msg(string answer)
+void display_usd_msg(bool cont, string answer)
 {
+  phonedlg.in_usd = cont;
   phonedlg.statusline.label = "Answer: \n" + answer;
+}
+
+void cancel_usd()
+{
+  phonedlg.in_usd = false;
 }
 
 void nw_changed(int registerstatus, GSMCell cell)
 {
   string status = "unknown";
+  cancel_usd();
   switch (registerstatus) {
     case 0:
     case 2:
@@ -200,6 +211,7 @@ void nw_changed(int registerstatus, GSMCell cell)
     break;
     case -1:
     phonedlg.title="Phone: modem off";
+    phonedlg.statusline.label="modem off";
     return;
   }
   phonedlg.title="Phone: %s %x/%x".printf(status,cell.lac,cell.cell);
