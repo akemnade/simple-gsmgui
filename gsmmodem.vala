@@ -77,6 +77,7 @@ class GSMModem : Object {
       Posix.close(fd);
       fd = -1;
       Timeout.add(2000, modem_check_timer); 
+      network_changed(-1, cell);
       return false;
     }
     l+=inbufpos;
@@ -151,6 +152,7 @@ class GSMModem : Object {
         add_commands(unsoc_init);
         pin_status(true);
       } else {
+        network_changed(0, cell);
         pin_status(false);
       }
     } else if (parts[0] == "+CLIP") {

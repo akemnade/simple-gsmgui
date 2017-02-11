@@ -31,7 +31,7 @@ class PhoneDlg : Gtk.Dialog {
   public PhoneDlg() {
     Gtk.Box vb = (Gtk.Box)get_content_area(); 
     Gtk.Box hb = (Gtk.Box)get_action_area();
-    set_title("Phone");
+    set_title("Phone: modem off");
     dialbutton = new Gtk.Button.with_label("Dial"); 
     hangupbutton = new Gtk.Button.with_label("Hangup");
     hb.pack_start(dialbutton, true,true,0);
@@ -173,6 +173,9 @@ void nw_changed(int registerstatus, GSMCell cell)
     case 5:
     status = "roaming";
     break;
+    case -1:
+    phonedlg.title="Phone: modem off";
+    return;
   }
   phonedlg.title="Phone: %s %x/%x".printf(status,cell.lac,cell.cell);
   if (cellfilename != null) {
