@@ -32,7 +32,7 @@ class PhoneDlg : Gtk.Dialog {
   }
   void numbfunc(Gtk.Button b) {
 	  //int pos = phoneline.cursor_position;
-         string addstr= b.get_label();
+         string addstr = b.get_data("num");
          phoneline.text+=addstr;
   } 
   void linechanged() {
@@ -67,10 +67,14 @@ class PhoneDlg : Gtk.Dialog {
     string nums[12]={"1","2","3","4","5","6","7","8","9","*","0","#"};
     int i;
     for(i=0;i<nums.length;i++) {
-      var but = new Gtk.Button.with_label(nums[i]);
+      var but = new Gtk.Button();
+      var label = new Gtk.Label(null);
+      label.set_markup("<span font_size='xx-large'>%s</span>".printf(nums[i]));
+      but.add(label);
+      but.set_data("num", nums[i]);
       numberfield.attach(but, i%3, i%3+1, i/3, i/3+1,
 	Gtk.AttachOptions.FILL | Gtk.AttachOptions.EXPAND,
-        Gtk.AttachOptions.FILL | Gtk.AttachOptions.EXPAND,5,5);
+        Gtk.AttachOptions.FILL | Gtk.AttachOptions.EXPAND,10,10);
       but.clicked.connect(numbfunc);
     }
   }
