@@ -21,4 +21,4 @@ done
 if [ "$VOICEFILE" = "" ] ; then
   alsactl -f "$VOICEFILE_BASE" restore
 fi
-amixer set 'Voice Route out' on 
+amixer set 'Voice PCM Out' on 

@@ -1,2 +1,2 @@
 #!/bin/sh
-amixer set 'Voice Route out' off
+amixer set 'Voice PCM Out' off

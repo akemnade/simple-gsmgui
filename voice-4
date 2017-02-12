@@ -291,7 +291,7 @@ state.gta04 {
 	}
 	control.21 {
 		iface MIXER
-		name 'Voice route'
+		name 'Voice PCM Interface'
 		value active
 		comment {
 			access 'read write'
@@ -357,7 +357,7 @@ state.gta04 {
 	}
 	control.26 {
 		iface MIXER
-		name 'Voice Route out Switch'
+		name 'Voice PCM Out Switch'
 		value true
 		comment {
 			access 'read write'
