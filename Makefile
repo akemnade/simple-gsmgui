@@ -14,6 +14,8 @@ install:
 	install -m 755 -t $(DESTDIR)$(PREFIX)/bin simple-gsmgui gsmgui-ring.sh gsmgui-start-audio.sh gsmgui-hungup.sh start-gsmgui.sh simple_vibra
 	install -m 755 -d $(DESTDIR)$(PREFIX)/share/gsmgui
 	install -m 644 -t $(DESTDIR)$(PREFIX)/share/gsmgui voice-4 voice
+	install -m 644 -D simple-gsmgui.desktop $(DESTDIR)$(PREFIX)/share/applications/simple-gsmgui.desktop
+
 
 clean:
 	rm -f simple-gsmgui simple_vibra gsmgui-start-audio.sh
