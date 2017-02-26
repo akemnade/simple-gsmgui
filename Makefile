@@ -1,4 +1,4 @@
-PREFIX=/usr/local
+PREFIX ?= /usr/local
 
 all: simple-gsmgui gsmgui-ring.sh gsmgui-start-audio.sh gsmgui-hungup.sh start-gsmgui.sh simple_vibra
 simple-gsmgui: gsmgui.vala gsmmodem.vala
