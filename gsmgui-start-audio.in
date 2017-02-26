@@ -4,6 +4,9 @@ K="$(uname -r)"
 K2=""
 VOICEFILE=""
 VOICEFILE_BASE="PREFIX/share/gsmgui/voice"
+# for alsactl
+PATH=/usr/sbin:$PATH
+
 # accect different alsa state files for different kernels
 # search for e.g voice-4.10.0 voice-4.10 voice-4
 while [ "$K" != "$K2" ] 
