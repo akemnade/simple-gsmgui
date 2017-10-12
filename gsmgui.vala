@@ -118,6 +118,16 @@ void incoming_call(string number)
   phonedlg.show_all();
 }
 
+void call_state_changed(GSMModem.CallState state)
+{
+  phonedlg.phoneline.text = "";
+  stdout.printf("call state changed (gui)\n");
+  if (state == GSMModem.CallState.INACTIVE) {
+    phonedlg.statusline.label = "no call active";
+    call_hangupscript();
+  }
+}
+
 void dialbuttoncb()
 {
   string number = phonedlg.phoneline.text;
@@ -153,13 +163,8 @@ void dialbuttoncb()
   }
 }
 
-void hangupbuttoncb()
+void call_hangupscript()
 {
-  if (saved_pin_status)
-      phonedlg.statusline.label="";
-
-  cancel_usd();
-  modem.send_hangup();
   try {
 	  
 	  Pid pid;
@@ -167,6 +172,16 @@ void hangupbuttoncb()
 	  Process.close_pid(pid);
   } catch(SpawnError err) {
   }
+}
+
+void hangupbuttoncb()
+{
+  if (saved_pin_status)
+      phonedlg.statusline.label="";
+
+  cancel_usd();
+  modem.send_hangup();
+  call_hangupscript();
 }
 
 void mysigusr1()
@@ -240,6 +255,7 @@ int main(string [] args) {
   modem.incoming_call.connect(incoming_call);
   modem.network_changed.connect(nw_changed);
   modem.got_usd_msg.connect(display_usd_msg);
+  modem.call_state_changed.connect(call_state_changed);
   phonedlg.dialbutton.clicked.connect(dialbuttoncb);
   phonedlg.hangupbutton.clicked.connect(hangupbuttoncb);
   modem.ask_pinstatus();
