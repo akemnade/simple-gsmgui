@@ -21,6 +21,7 @@ class PhoneDlg : Gtk.Dialog {
   string okempty;
   string oknonempty;
   public bool in_usd;
+  public signal void digit_pressed(string number); 
   public void update_dialbutton(string empty, string nonempty) {
     okempty = empty;
     oknonempty = nonempty;
@@ -34,6 +35,7 @@ class PhoneDlg : Gtk.Dialog {
   void numbfunc(Gtk.Button b) {
 	  //int pos = phoneline.cursor_position;
          string addstr = b.get_data("num");
+         digit_pressed(addstr);
          phoneline.text+=addstr;
   } 
   void linechanged() {
@@ -207,6 +209,12 @@ void cancel_usd()
   phonedlg.in_usd = false;
 }
 
+void process_digit(string num) {
+  if (modem.call_state == GSMModem.CallState.ACTIVE) {
+    modem.send_dtmf(num);
+  }
+}
+
 void nw_changed(int registerstatus, GSMCell cell)
 {
   string status = "unknown";
@@ -250,6 +258,7 @@ int main(string [] args) {
   }
   phonedlg = new PhoneDlg();
   phonedlg.delete_event.connect(hidedlg);
+  phonedlg.digit_pressed.connect(process_digit);
   modem = new GSMModem("/dev/ttyHS_Application");  
   modem.pin_status.connect(pin_status);   
   modem.incoming_call.connect(incoming_call);
