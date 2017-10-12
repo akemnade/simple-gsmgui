@@ -28,6 +28,18 @@ class GSMModem : Object {
   int num_quot;
   char inbuf[512];
   char inbufpos;
+  public enum CallState {
+    INACTIVE = 255,
+    ACTIVE = 0,
+    HOLDING = 1,
+    DIALING = 2,
+    ALERTING = 3,
+    INCOMING = 4,
+    WAITING = 5,
+  }
+  public CallState call_state; 
+  bool calling;
+  bool seen_call_state;
   string oldline;
   string [] unsoc_init = {"AT+CLIP=1","AT+CREG=2","AT+CSQ","AT+CTZU=1","AT+CREG?"};
   public signal void pin_status(bool ok);
@@ -35,7 +47,7 @@ class GSMModem : Object {
   public signal void incoming_call(string number);
   public signal void network_changed(int registerstatus, GSMCell cell);
   public signal void got_usd_msg(bool cont, string answer);
-
+  public signal void call_state_changed(CallState newstate);
   void command_result(string line) {
     stdout.printf("result: %s\n",line);
     if (atcmds.is_empty())
@@ -117,6 +129,23 @@ class GSMModem : Object {
        add_command("AT+COPS?");
     }
   }
+
+  public void handle_clcc(string cl)
+  {
+    int index, is_mt, state, is_voice, is_mpty, toa;
+    string number;
+    int parts = cl.scanf("%d,%d,%d,%d,%d,\"%20m[^\"]\",%d",
+		out index, out is_mt, out state, out is_voice, out is_mpty, out number,
+                out toa);
+    if (parts != 7)
+      return;
+    seen_call_state = true;
+    CallState old_state = call_state;
+    stdout.printf("call status: %d %s\n", state, number);
+    call_state = (CallState) state;
+    if (old_state != call_state)
+      call_state_changed(call_state);
+  }
   
   public void handle_cops(string cl)
   {
@@ -165,6 +194,8 @@ class GSMModem : Object {
       }
     } else if (parts[0] == "+CLIP") {
        handle_clip(parts[1]);
+    } else if (parts[0] == "+CLCC") {
+       handle_clcc(parts[1]);
     } else if (parts[0] == "+CREG") {
        handle_creg(parts[1]);
     } else if (parts[0] == "+COPS") {
@@ -239,15 +270,36 @@ class GSMModem : Object {
   public void ask_pinstatus() {
     add_command("AT+CPIN?");
   }
+
+  bool check_call_timer() {
+     if (seen_call_state) {
+       add_command("AT+CLCC");
+       seen_call_state = false;
+       return true;
+     }
+     call_state = CallState.INACTIVE;
+     call_state_changed(call_state);
+     return false;
+  }
+
+
   public void dial(string number) {
     string [] cmd ={"AT_ODO=0","AT_OPCMENABLE=1",/*AT_OPCMCONFIG=...*/
                     "AT+CLVL=7", "AT_OPCMPROF=0","ATD%s;".printf(number)};
-    add_commands(cmd);
+    if (call_state == CallState.INACTIVE) {
+      add_commands(cmd);
+      seen_call_state = true;
+      Timeout.add(1000, check_call_timer);
+    }
   } 
   public void answer() {
     string [] cmd ={"AT_ODO=0","AT_OPCMENABLE=1",/*AT_OPCMCONFIG=...*/
 		    "AT+CLVL=7","AT_OPCMPROF=0","ATA"};
-    add_commands(cmd); 
+    if (call_state == CallState.INACTIVE) {
+      add_commands(cmd); 
+      seen_call_state = true;
+      Timeout.add(1000, check_call_timer);
+    }
   }
   public void open_modem() {
     fd = Posix.open(modemname,Posix.O_RDWR);
@@ -276,6 +328,8 @@ class GSMModem : Object {
     modemname = name;
     atcmds = new Queue<string>();
     cell = GSMCell();
+    calling = false;
+    call_state = CallState.INACTIVE;
     open_modem();
     if (fd < 0) {
       Timeout.add(2000, modem_check_timer); 
