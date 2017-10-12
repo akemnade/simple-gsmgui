@@ -267,6 +267,11 @@ class GSMModem : Object {
     open_modem();
     return true;
   }
+
+  public void send_dtmf(string num) {
+    add_command("AT+VTS="+num);
+  }
+
   public GSMModem(string name) {
     modemname = name;
     atcmds = new Queue<string>();
