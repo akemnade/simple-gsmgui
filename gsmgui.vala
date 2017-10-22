@@ -18,6 +18,7 @@ class PhoneDlg : Gtk.Dialog {
   public Gtk.Button dialbutton;
   public Gtk.Button hangupbutton;
   public Gtk.Button backbutton;
+  public Gtk.ToolButton pastebutton;
   string okempty;
   string oknonempty;
   public bool in_usd;
@@ -31,6 +32,30 @@ class PhoneDlg : Gtk.Dialog {
     // int p = phoneline.cursor_position;
     if (phoneline.text.length > 0)
       phoneline.text = phoneline.text.substring(0,phoneline.text.length-1);
+  }
+  void got_clipboard_text(Gtk.Clipboard clip, string? text) {
+     if (text != null) {
+       var filtered = new StringBuilder();
+       bool first_seen = false;
+       int i;
+       for(i = 0; i < text.length ; i++) {
+         if ((!first_seen) && (text[i] == '+')) {
+           first_seen = true;
+           filtered.append_c('+');
+         } else if (text[i].isdigit()) {
+           first_seen = true;
+           filtered.append_c(text[i]);
+         }
+       }
+
+       phoneline.text = filtered.str;
+     }
+  }
+
+  void paste_number() {
+    var clip = Gtk.Clipboard.get_for_display(get_display(),Gdk.SELECTION_PRIMARY);
+    clip.request_text(got_clipboard_text); 
+    //phoneline.paste_clipboard();
   }
   void numbfunc(Gtk.Button b) {
 	  //int pos = phoneline.cursor_position;
@@ -66,6 +91,10 @@ class PhoneDlg : Gtk.Dialog {
     backbutton = new Gtk.Button.with_label("<<---");
     hbox.pack_end(backbutton,false,false,0);
     backbutton.clicked.connect(dellast); 
+    //pastebutton = new Gtk.Button.with_label("P");
+    pastebutton = new Gtk.ToolButton.from_stock(Gtk.Stock.PASTE);
+    pastebutton.clicked.connect(paste_number);
+    hbox.pack_end(pastebutton,false,false,0);
     numberfield = new Gtk.Table(4,3,true);
     vb.pack_start(numberfield,true,true,0);
     string nums[12]={"1","2","3","4","5","6","7","8","9","*","0","#"};
@@ -203,6 +232,7 @@ void display_usd_msg(bool cont, string answer)
   phonedlg.in_usd = cont;
   phonedlg.statusline.label = "Answer: \n" + answer;
 }
+
 
 void cancel_usd()
 {
