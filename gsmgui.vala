@@ -267,7 +267,7 @@ void nw_changed(int registerstatus, GSMCell cell)
     phonedlg.statusline.label="modem off";
     return;
   }
-  phonedlg.title="Phone: %s %x/%x".printf(status,cell.lac,cell.cell);
+  phonedlg.title="Phone: %s (%s) %x/%x".printf(cell.operator,status,cell.lac,cell.cell);
   if (cellfilename != null) {
     FileStream fs = FileStream.open(cellfilename,"w");
     if (fs != null)
