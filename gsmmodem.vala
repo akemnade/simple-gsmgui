@@ -152,15 +152,23 @@ class GSMModem : Object {
     //allocate enough memory for sscanf
     int mode;
     int format;
-   int plmnint;
-    int parts = cl.scanf("%d,%d,\"%d\"",out mode,out format,out plmnint);
-    string plmn = "%d".printf(plmnint);
-    if ((parts > 1) && (format != 2)) {
-        add_command("AT+COPS=0,2");
+    string [] parts = cl.split(",");
+    if (parts.length < 3)
+      return;
+    mode = int.parse(parts[0]);
+    format = int.parse(parts[1]);
+    if (parts[2].length < 2)
+      return;
+    parts[2] = parts[2].substring(1, parts[2].length - 1);
+    
+    //int parts = cl.scanf("%d,%d,\"%d\"",out mode,out format,out plmnint);
+    if ((format != 2)) {
+        add_command("AT+COPS=3,2");
         add_command("AT+COPS?");
         return;
     }
-    if ((parts > 2) && (format == 2)) {
+    if (format == 2) {
+        string plmn = parts[2];
         cell.mcc = (uint16)int.parse(plmn.substring(0,3));
         cell.mcn = (uint16)int.parse(plmn.substring(3,-1));
         stdout.printf("MCC: %d MCN: %d\n",
