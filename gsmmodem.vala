@@ -16,6 +16,7 @@ struct GSMCell {
   uint16 mcn;
   uint16 lac;
   uint32 cell; 
+  string operator;
 }
 
 class GSMModem : Object {
@@ -126,6 +127,7 @@ class GSMModem : Object {
     if ((registerstatus == 0) || (registerstatus == 2)) {
       network_changed(registerstatus,cell);
     } else {
+       add_command("AT+COPS=3,0");
        add_command("AT+COPS?");
     }
   }
@@ -159,14 +161,9 @@ class GSMModem : Object {
     format = int.parse(parts[1]);
     if (parts[2].length < 2)
       return;
-    parts[2] = parts[2].substring(1, parts[2].length - 1);
+    parts[2] = parts[2].substring(1, parts[2].length - 2);
     
     //int parts = cl.scanf("%d,%d,\"%d\"",out mode,out format,out plmnint);
-    if ((format != 2)) {
-        add_command("AT+COPS=3,2");
-        add_command("AT+COPS?");
-        return;
-    }
     if (format == 2) {
         string plmn = parts[2];
         cell.mcc = (uint16)int.parse(plmn.substring(0,3));
@@ -174,6 +171,13 @@ class GSMModem : Object {
         stdout.printf("MCC: %d MCN: %d\n",
                       cell.mcc, cell.mcn);
         network_changed(registerstatus, cell);
+    } else if (format == 0) {
+        cell.mcc = 0;
+        cell.mcn = 0;
+        cell.operator = parts[2];
+        stdout.printf("operator: %s\n", cell.operator);
+        add_command("AT+COPS=3,2");
+        add_command("AT+COPS?");
     }
     
   }
