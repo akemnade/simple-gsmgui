@@ -297,7 +297,6 @@ int main(string [] args) {
   modem.call_state_changed.connect(call_state_changed);
   phonedlg.dialbutton.clicked.connect(dialbuttoncb);
   phonedlg.hangupbutton.clicked.connect(hangupbuttoncb);
-  modem.ask_pinstatus();
   Posix.signal(Posix.SIGUSR1,mysigusr1);
   Gtk.main();
   return 0;

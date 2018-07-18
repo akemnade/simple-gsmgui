@@ -242,6 +242,9 @@ class GSMModem : Object {
     /* is it just an echo? */
     if (line.has_prefix(cmd)) {
       stdout.printf("echo: %s\n",line);
+    } else if (line.has_prefix("+CME ERROR: Sim interface not started yet")) {
+      Timeout.add(500, modem_ready_timer); 
+
     } else if (line.has_prefix("+CME")) {
       command_result(line);
       atcmds.clear();
@@ -310,10 +313,14 @@ class GSMModem : Object {
     var gioc = new IOChannel.unix_new(fd);
     gioc.add_watch(GLib.IOCondition.IN,read_cb);
     handle_queue();
+    ask_pinstatus();
+  }
+  public bool modem_ready_timer() {
+    handle_queue();
+    return false;
   }
   public bool modem_check_timer() {
     if (fd > 0) {
-      ask_pinstatus();
       return false;
     }
     open_modem();
