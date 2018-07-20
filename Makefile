@@ -1,7 +1,7 @@
 PREFIX ?= /usr/local
 
 all: simple-gsmgui gsmgui-ring.sh gsmgui-start-audio.sh gsmgui-hungup.sh start-gsmgui.sh simple_vibra
-simple-gsmgui: gsmgui.vala gsmmodem.vala
+simple-gsmgui: gsmgui.vala gsmmodem.vala network_chooser.vala
 	valac $^ -o simple-gsmgui --pkg gtk+-2.0 --pkg posix -g --save-temps -X -O2
 
 simple_vibra: simple_vibra.c

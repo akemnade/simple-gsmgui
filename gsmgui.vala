@@ -215,9 +215,24 @@ void hangupbuttoncb()
   call_hangupscript();
 }
 
+NetworkChooser nchooser = null;
 void mysigusr1()
 {
   phonedlg.show_all();
+}
+
+void network_chosen()
+{
+  stdout.printf("network choosen");
+  nchooser = null;
+}
+
+
+void mysigusr2()
+{
+  nchooser = new NetworkChooser(modem);
+  nchooser.done.connect(network_chosen);
+  nchooser.start();
 }
 
 bool hidedlg(Gdk.Event event)
@@ -298,6 +313,7 @@ int main(string [] args) {
   phonedlg.dialbutton.clicked.connect(dialbuttoncb);
   phonedlg.hangupbutton.clicked.connect(hangupbuttoncb);
   Posix.signal(Posix.SIGUSR1,mysigusr1);
+  Posix.signal(Posix.SIGUSR2,mysigusr2);
   Gtk.main();
   return 0;
 }
