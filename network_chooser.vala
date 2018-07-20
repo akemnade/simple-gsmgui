@@ -44,6 +44,8 @@ class NetworkChooser : Gtk.Dialog {
       ((Gtk.Box)get_content_area()).pack_start(but, false, true, 0);
       but.set_data("net", nets[i].number);
       but.clicked.connect(net_button_clicked);
+      if (!nets[i].allowed)
+        but.set_sensitive(false);
       but.show();
     }
   }
