@@ -368,35 +368,38 @@ class GSMModem : Object {
   }
   private GSMNet [] parse_network_string(string nw)
   {
-    Regex rex = new Regex("\\(([^)]*)\\)");
-    MatchInfo minfo;
     GSMNet [] result = new GSMNet[0];
-    if (rex.match(nw, 0, out minfo)) {
-      while(minfo.matches()) {
-      do {
-        if (minfo.get_match_count() != 2) 
-          break;
-        string opstr = minfo.fetch(1);
-        stdout.printf("opstr: %s\n", opstr);
-        Regex oprex = new Regex("^([123]),\"([^\"]*)\",\"([^\"]*)\",\"([^\"]*)\",[0-9]");
-        MatchInfo opmatch;
-        if (!oprex.match(opstr, 0, out opmatch))
-          break;
-        stdout.printf("oprex matched\n");
-        if (opmatch.get_match_count() != 5)
-          break;
-        GSMNet net = GSMNet();
-        net.allowed = opmatch.fetch(1) != "3"; 
-        net.name = opmatch.fetch(2); 
-        net.shortname = opmatch.fetch(3); 
-        net.number = opmatch.fetch(4); 
-        result += net;
-        stdout.printf("allowed: %s, name: %s number: %s", net.allowed ? "yes" : "no", net.name, net.number);
-      } while(false);
-      minfo.next();
+    try {
+      Regex rex = new Regex("\\(([^)]*)\\)");
+      Regex oprex = new Regex("^([123]),\"([^\"]*)\",\"([^\"]*)\",\"([^\"]*)\",[0-9]");
+      MatchInfo minfo;
+      if (rex.match(nw, 0, out minfo)) {
+        while(minfo.matches()) {
+          do {
+            if (minfo.get_match_count() != 2) 
+              break;
+            string opstr = minfo.fetch(1);
+            stdout.printf("opstr: %s\n", opstr);
+            MatchInfo opmatch;
+            if (!oprex.match(opstr, 0, out opmatch))
+              break;
+            stdout.printf("oprex matched\n");
+            if (opmatch.get_match_count() != 5)
+              break;
+            GSMNet net = GSMNet();
+            net.allowed = opmatch.fetch(1) != "3"; 
+            net.name = opmatch.fetch(2); 
+            net.shortname = opmatch.fetch(3); 
+            net.number = opmatch.fetch(4); 
+            result += net;
+            stdout.printf("allowed: %s, name: %s number: %s", net.allowed ? "yes" : "no", net.name, net.number);
+          } while(false);
+          minfo.next();
+        }
+      }
+    } catch (RegexError e)  {
     }
-  }
-  return result;
+    return result;
   }
 
 
