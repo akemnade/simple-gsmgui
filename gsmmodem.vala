@@ -19,6 +19,13 @@ struct GSMCell {
   string operator;
 }
 
+struct GSMNet {
+  string name;
+  string shortname;
+  string number;
+  bool allowed;
+}
+
 class GSMModem : Object {
   int fd;
   //FileStream fs;
@@ -49,6 +56,7 @@ class GSMModem : Object {
   public signal void network_changed(int registerstatus, GSMCell cell);
   public signal void got_usd_msg(bool cont, string answer);
   public signal void call_state_changed(CallState newstate);
+  public signal void got_network_list(GSMNet [] list);
   void command_result(string line) {
     stdout.printf("result: %s\n",line);
     if (atcmds.is_empty())
@@ -152,6 +160,10 @@ class GSMModem : Object {
   public void handle_cops(string cl)
   {
     //allocate enough memory for sscanf
+    if (cl.index_of_char('(') >= 0) {
+      got_network_list(parse_network_string(cl));
+      return;
+    }
     int mode;
     int format;
     string [] parts = cl.split(",");
@@ -286,6 +298,18 @@ class GSMModem : Object {
     add_command("AT+CPIN?");
   }
 
+  public void search_networks() {
+    add_command("AT+COPS=?");
+  }
+
+  public void set_network(string number) {
+    add_command("AT+COPS=1,2,\"%s\"".printf(number));
+  }
+
+  public void set_auto_network() {
+    add_command("AT+COPS=0");
+  }
+
   bool check_call_timer() {
      if (seen_call_state) {
        add_command("AT+CLCC");
@@ -342,6 +366,39 @@ class GSMModem : Object {
   public void send_dtmf(string num) {
     add_command("AT+VTS="+num);
   }
+  private GSMNet [] parse_network_string(string nw)
+  {
+    Regex rex = new Regex("\\(([^)]*)\\)");
+    MatchInfo minfo;
+    GSMNet [] result = new GSMNet[0];
+    if (rex.match(nw, 0, out minfo)) {
+      while(minfo.matches()) {
+      do {
+        if (minfo.get_match_count() != 2) 
+          break;
+        string opstr = minfo.fetch(1);
+        stdout.printf("opstr: %s\n", opstr);
+        Regex oprex = new Regex("^([123]),\"([^\"]*)\",\"([^\"]*)\",\"([^\"]*)\",[0-9]");
+        MatchInfo opmatch;
+        if (!oprex.match(opstr, 0, out opmatch))
+          break;
+        stdout.printf("oprex matched\n");
+        if (opmatch.get_match_count() != 5)
+          break;
+        GSMNet net = GSMNet();
+        net.allowed = opmatch.fetch(1) != "3"; 
+        net.name = opmatch.fetch(2); 
+        net.shortname = opmatch.fetch(3); 
+        net.number = opmatch.fetch(4); 
+        result += net;
+        stdout.printf("allowed: %s, name: %s number: %s", net.allowed ? "yes" : "no", net.name, net.number);
+      } while(false);
+      minfo.next();
+    }
+  }
+  return result;
+  }
+
 
   public GSMModem(string name) {
     modemname = name;
