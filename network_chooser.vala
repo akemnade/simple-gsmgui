@@ -51,8 +51,8 @@ class NetworkChooser : Gtk.Dialog {
   }
   
   private bool close_chooser(Gdk.Event e) {
-    destroy();
     done();
+    destroy();
     return true;
   }
 
