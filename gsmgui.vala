@@ -113,6 +113,7 @@ class PhoneDlg : Gtk.Dialog {
   }
 }
 
+bool nwselect_pending = false;
 GSMModem modem;
 PhoneDlg phonedlg;
 bool saved_pin_status = false;
@@ -133,6 +134,10 @@ void pin_status(bool ok) {
     first_pincheck = false;
     phonedlg.statusline.label = "PIN ok";
     stdout.printf("ok\n");
+    if (nwselect_pending) {
+      nwselect_pending = false;
+      open_network_chooser();
+    }
   }
 }
 
@@ -230,6 +235,18 @@ void network_chosen()
 
 void mysigusr2()
 {
+  if (!saved_pin_status) {
+    phonedlg.show_all();
+    nwselect_pending = true;
+  } else {
+    open_network_chooser();
+  }
+}
+
+void open_network_chooser()
+{
+  if (nchooser != null)
+    return;
   nchooser = new NetworkChooser(modem);
   nchooser.done.connect(network_chosen);
   nchooser.start();
@@ -293,6 +310,9 @@ void nw_changed(int registerstatus, GSMCell cell)
 
 int main(string [] args) {
   Gtk.init(ref args);
+  if ((args.length > 1) && (args[1] == "--nwselect")) {
+    nwselect_pending = true;
+  }
   string celltmp = Environment.get_tmp_dir()+"/gsminfo.XXXXXX";
   string celltmpres = DirUtils.mkdtemp(celltmp);
   if (celltmpres != null) {
