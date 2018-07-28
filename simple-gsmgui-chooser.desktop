@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=Simple-GsmGUI Network Chooser
+Comment=Allow to dial and receive phone calls
+Exec=start-gsmgui-chooser.sh
+Icon=none
+Terminal=false
+Type=Application
+Categories=Utility;
+StartupNotify=true
